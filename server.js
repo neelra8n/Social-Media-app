@@ -1,39 +1,54 @@
 const express = require('express');
-var mongoose = require('mongoose');
-const users = require('./routes/api/users');
-const posts = require('./routes/api/posts');
-const profile = require('./routes/api/profile');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const passport = require('passport');
 
+const users = require('./routes/api/users');
+const profile = require('./routes/api/profile');
+const posts = require('./routes/api/posts');
 const app = express();
 
-// var MongoClient = require('mongodb').MongoClient;
+// Body parser middleware
 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+// DB Config
 
 const db = require('./config/keys').mongoURI;
-
-mongoose.connect(db, { useNewUrlParser: true,  useUnifiedTopology: true })
-.then(()=> console.log('MongoDB Connected'))
+// Connect to MongoDB
+mongoose
+    .connect(db, { useNewUrlParser: true,  useUnifiedTopology: true})
+    .then(() => console.log('MongoDB Connected'))
 .catch(err => console.log(err));
 
 
-
-
-
-app.get('/', (req, res) => res.send('Hello!'));
-
-
-// //use routes
-app.use('api/users', users);
-app.use('api/profile', profile);
-app.use('api/posts', posts);
-
-
+// const MongoClient = require('mongodb').MongoClient;
+// const uri = "mongodb+srv://mongodb:mongodb@mongodb-3e9fg.mongodb.net/test?retryWrites=true&w=majority";
+// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+// client.connect(err => {
+//   const collection = client.db("test").collection("devices");
+//   // perform actions on the collection object
+//   client.close();
+// });
 
 
 
 
+//passport middleware
+app.use(passport.initialize());
+
+//passport Config
+
+require('./config/passport')(passport);
 
 
-const port = process.env.port|| 5000;
+app.get('/', (req, res)=> res.send('Hello World!'));
 
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+
+// Use Routes
+app.use('/api/users', users);
+app.use('/api/profile', profile);
+app.use('/api/posts', posts);
+const port = process.env.PORT || 5000;
+app.listen(port, () => console.log(`Server running on port ${port}`));

@@ -1,5 +1,11 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
+import jwt_decode from 'jwt-decode';
+import setAuthToken from './utils/setAuthToken';
+import { setCurrentUser, logoutUser } from './actons/authActions';
+import { clearCurrentProfile } from './actons/profileActions';
+
+
 import { Provider } from 'react-redux';
 import store from './store';
 
@@ -10,6 +16,33 @@ import Footer from './components/layout/Footer';
 import Landing from './components/layout/Landing';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
+import Dashboard from './components/dashboard/Dashboard';
+
+//check for tokens
+if(localStorage.jwtToken){
+  //set auth header token
+  setAuthToken(localStorage.jwtToken);
+  //Decode token and get user info and exp
+  const decoded = jwt_decode(localStorage.jwtToken);
+  //set user and is authenticated
+  store.dispatch(setCurrentUser(decoded));
+
+  //check for expired token
+  const currentTime = Date.now()/1000;
+  console.log(decoded, decoded.exp < currentTime)
+  if(decoded.exp < currentTime){
+    console.log(currentTime)
+    //logout user
+    store.dispatch(logoutUser());
+    //clear current profile
+    store.dispatch(clearCurrentProfile());
+    //redirect to login
+    window.location.href = '/login';
+  }
+
+
+}
+
 
 
 
@@ -24,6 +57,7 @@ class App extends Component {
               <div className="container">
               <Route exact path = "/register" component = {Register} />
               <Route exact path = "/login" component = {Login} />
+              <Route exact path = "/dashboard" component = {Dashboard} />
               </div>
         <Footer />
         </div>

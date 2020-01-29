@@ -95,14 +95,16 @@ router.get('/test', (req,res) => res.json({msg: "Profile works"}));
 router.get('/', passport.authenticate('jwt',{session: false}),
  (req, res) => {
     const errors = {};
-    Profile.findOne({user: req.user.id})
+    console.log(req.user)
+    Profile.findOne({user: req.user._id})
     .populate('user', ['name', 'avatar'])
     .then(profile => {
+        console.log(profile)
         if(!profile){
             errors.noprofile = 'there is no profile for this user';
             return res.status(404).json(errors);
         }
-        res.json(profile);
+        res.json({});
     })
     .catch(err => res.status(404).json(err));
 });
@@ -313,6 +315,7 @@ router.delete(
     '/',
     passport.authenticate('jwt', {session: false}),
     (req, res) => {
+       
     Profile.findOneAndRemove({user: req.user.id }).then(() => {
         User.findOneAndRemove({_id: req.user.id }).then(() => res.json({ success: true })
         );

@@ -95,11 +95,11 @@ router.get('/test', (req,res) => res.json({msg: "Profile works"}));
 router.get('/', passport.authenticate('jwt',{session: false}),
  (req, res) => {
     const errors = {};
-    console.log(req.user)
+    // console.log(req.user)
     Profile.findOne({user: req.user._id})
     .populate('user', ['name', 'avatar'])
     .then(profile => {
-        console.log(profile)
+        // console.log(profile)
         if(!profile){
             errors.noprofile = 'there is no profile for this user';
             return res.status(404).json(errors);
@@ -194,8 +194,8 @@ router.post('/experience', passport.authenticate('jwt', {session: false}), (req,
        return res.status(400).json(errors);
    }
 
-   console.log(req.user)
-   console.log(req.user._id)
+//    console.log(req.user)
+//    console.log(req.user._id)
 
 
     Profile.findOne({user: req.user._id })
